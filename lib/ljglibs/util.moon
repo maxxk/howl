@@ -10,6 +10,9 @@ C, ffi_cast, ffi_string = ffi.C, ffi.cast, ffi.string
 band = bit.band
 gchar_arr = ffi.typeof 'gchar [?]'
 
+effective_keyval = ffi.new 'guint [1]'
+consumed_modifiers = ffi.new 'GdkModifierType [1]'
+
 explain_key_code = (code, event) ->
   effective_code = code == 10 and Gdk.KEY_Return or code
 
@@ -27,18 +30,37 @@ explain_key_code = (code, event) ->
 
   event.key_code = code
 
+get_modifiers = (state) ->
+  {
+      shift: band(state, C.GDK_SHIFT_MASK) != 0,
+      control: band(state, C.GDK_CONTROL_MASK) != 0,
+      alt: band(state, C.GDK_MOD1_MASK) != 0,
+      super: band(state, C.GDK_SUPER_MASK) != 0,
+      meta: band(state, C.GDK_META_MASK) != 0,
+      lock: band(state, C.GDK_LOCK_MASK) != 0,
+  }
+
 {
   parse_key_event: (key_event) ->
     key_event = ffi_cast('GdkEventKey *', key_event)
-    event = {
-      shift: band(key_event.state, C.GDK_SHIFT_MASK) != 0,
-      control: band(key_event.state, C.GDK_CONTROL_MASK) != 0,
-      alt: band(key_event.state, C.GDK_MOD1_MASK) != 0,
-      super: band(key_event.state, C.GDK_SUPER_MASK) != 0,
-      meta: band(key_event.state, C.GDK_META_MASK) != 0,
-      lock: band(key_event.state, C.GDK_LOCK_MASK) != 0,
-    }
-    explain_key_code key_event.keyval, event
+
+    keymap = C.gdk_keymap_get_for_display Gdk.display.get_default!
+    C.gdk_keymap_translate_keyboard_state keymap, key_event.hardware_keycode, key_event.state, 0, effective_keyval, nil, nil, consumed_modifiers
+
+    new_keyval = tonumber effective_keyval[0]
+    event = get_modifiers key_event.state
+
+    -- if keyval is different in "default" layout and event looks like shortcut,
+    -- replace keyval and exclude consumed modifiers
+    is_shortcut = event.control or event.alt or event.super or event.meta
+    if new_keyval != key_event.keyval and is_shortcut
+      not_modifiers = tonumber consumed_modifiers[0]
+      -- return shift to modifiers
+      not_modifiers = bit.band(not_modifiers, bit.bnot(C.GDK_SHIFT_MASK))
+      event = get_modifiers band(key_event.state, bit.bnot(not_modifiers))
+      explain_key_code new_keyval, event
+    else
+      explain_key_code key_event.keyval, event
     event
 
 }

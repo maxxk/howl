@@ -408,4 +408,16 @@ ffi.cdef [[
                                     const GdkPixbuf *pixbuf,
                                     gdouble pixbuf_x,
                                     gdouble pixbuf_y);
+
+  typedef struct {} GdkKeymap;
+  GdkKeymap *gdk_keymap_get_for_display (GdkDisplay *display);
+  gboolean
+  gdk_keymap_translate_keyboard_state (GdkKeymap *keymap,
+                                    guint hardware_keycode,
+                                    GdkModifierType state,
+                                    gint group,
+                                    guint *keyval,
+                                    gint *effective_group,
+                                    gint *level,
+                                    GdkModifierType *consumed_modifiers);
 ]]
