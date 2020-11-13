@@ -229,7 +229,7 @@ DisplayLine = define_class {
     config = view.config
     wrap = config.view_line_wrap
 
-    WRAP_LIMIT = 2000 -- xxx replace
+    WRAP_LIMIT = 4096 -- xxx replace
     if wrap != 'none' and @size <= WRAP_LIMIT
       wrap_indicator = @display_lines.wrap_indicator
       width = view.edit_area_width - wrap_indicator.width - @width_of_space
