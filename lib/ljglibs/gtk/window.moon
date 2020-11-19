@@ -84,4 +84,6 @@ core.define 'GtkWindow < GtkBin', {
   set_default_icon_from_file: (filename) ->
     catch_error(C.gtk_window_set_default_icon_from_file, filename) != 0
 
+  set_title: (title) => C.gtk_window_set_title(@, title)
+
 }, (spec, type) -> spec.new type

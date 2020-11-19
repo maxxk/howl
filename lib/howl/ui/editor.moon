@@ -807,6 +807,13 @@ class Editor extends PropertyObject
   _on_button_release: (view, event) =>
     @drag_press_type = nil
 
+    if event.button == 3
+        if @selection.empty
+            print(@view\position_from_coordinates(event.x, event.y))
+            print(@view\position_from_coordinates(event.x, event.y, {fuzzy: true}))
+        else
+            print(@selection.text)
+
   _on_motion_event: (view, event) =>
     if @drag_press_type == Gdk.GDK_2BUTTON_PRESS or @drag_press_type == Gdk.GDK_3BUTTON_PRESS
       pos = @_pos_from_coordinates(event.x, event.y)

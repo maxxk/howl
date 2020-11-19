@@ -4,6 +4,7 @@
 import Window, Editor, theme from howl.ui
 import Buffer, Settings, mode, breadcrumbs, bundle, bindings, keymap, signal, interact, timer, clipboard, config from howl
 import File, Process from howl.io
+import Project from howl
 import PropertyObject from howl.util.moon
 Gtk = require 'ljglibs.gtk'
 callbacks = require 'ljglibs.callbacks'
@@ -114,6 +115,19 @@ class Application extends PropertyObject
         @window.command_panel\notify essentials, level
       elseif not @args.spec
         print message
+
+    signal.connect 'after-buffer-switch', (args) ->
+        buffer = args.current_buffer
+        title = buffer.title
+        if buffer.file
+            project = Project.for_file buffer.file
+            if project and project.root
+                title = title .. '\t' .. project.root.short_path
+            else if buffer.file.parent
+                title = title .. '\t' .. buffer.file.parent.short_path
+            else
+                title = title .. '\t' .. buffer.file.short_path
+        @window\set_title('Howl\t' .. title)
 
     super!
 
