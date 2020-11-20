@@ -181,6 +181,7 @@ export translate_key = (event) ->
   shift = (event.shift and 'shift_') or ''
   alt = (event.alt and 'alt_') or ''
   meta = (event.meta and 'meta_') or ''
+  super = (event.super and 'super_') or ''
   event = substitute_keyname event
   alternate = alternate_names[event.key_name]
 
@@ -192,8 +193,8 @@ export translate_key = (event) ->
     else
       character = character.ulower
 
-  append translations, ctrl .. meta .. alt .. character if character
-  modifiers = ctrl .. meta .. shift .. alt
+  append translations, ctrl .. meta .. super .. alt .. character if character
+  modifiers = ctrl .. meta .. super .. shift .. alt
 
   if event.key_name and event.key_name != character
     append translations, modifiers .. event.key_name

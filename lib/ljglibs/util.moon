@@ -35,7 +35,7 @@ get_modifiers = (state) ->
       shift: band(state, C.GDK_SHIFT_MASK) != 0,
       control: band(state, C.GDK_CONTROL_MASK) != 0,
       alt: band(state, C.GDK_MOD1_MASK) != 0,
-      super: band(state, C.GDK_SUPER_MASK) != 0,
+      super: band(state, bit.bor(C.GDK_SUPER_MASK, C.GDK_MOD4_MASK)) != 0,
       meta: band(state, C.GDK_META_MASK) != 0,
       lock: band(state, C.GDK_LOCK_MASK) != 0,
   }
@@ -61,6 +61,7 @@ get_modifiers = (state) ->
       explain_key_code new_keyval, event
     else
       explain_key_code key_event.keyval, event
+    event.modifiers = key_event.state
     event
 
 }
