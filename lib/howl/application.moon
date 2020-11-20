@@ -116,18 +116,18 @@ class Application extends PropertyObject
       elseif not @args.spec
         print message
 
-    signal.connect 'after-buffer-switch', (args) ->
-        buffer = args.current_buffer
+    signal.connect 'after-buffer-switch', (arg) ->
+        buffer = arg.current_buffer
         title = buffer.title
         if buffer.file
             project = Project.for_file buffer.file
             if project and project.root
-                title = title .. '\t' .. project.root.short_path
+                title = title .. ' (' .. project.root.short_path .. ')'
             else if buffer.file.parent
-                title = title .. '\t' .. buffer.file.parent.short_path
+                title = title .. ' (' .. buffer.file.parent.short_path .. ')'
             else
-                title = title .. '\t' .. buffer.file.short_path
-        @window\set_title('Howl\t' .. title)
+                title = title .. ' (' .. buffer.file.short_path .. ')'
+        @window\set_title('Howl: ' .. title)
 
     super!
 
