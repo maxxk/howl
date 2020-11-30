@@ -5,7 +5,7 @@ Gdk = require 'ljglibs.gdk'
 Gtk = require 'ljglibs.gtk'
 aullar = require 'aullar'
 gobject_signal = require 'ljglibs.gobject.signal'
-{:signal, :bindings, :config, :command, :clipboard, :sys} = howl
+{:signal, :bindings, :config, :command, :clipboard, :sys, :Chunk} = howl
 aullar_config = aullar.config
 {:PropertyObject} = howl.util.moon
 {highlight: highlights, :Searcher, :CompletionPopup} = howl.ui
@@ -795,24 +795,32 @@ class Editor extends PropertyObject
       elseif event.type == Gdk.GDK_3BUTTON_PRESS
         @selection\set @current_line.start_pos, @_next_line_start(@current_line)
 
-    elseif event.button == 2
-      text = clipboard.primary.text
-      if text
-        pos = @_pos_from_coordinates(event.x, event.y)
-        @selection\remove!
-        @cursor.pos = pos
-        @insert text
-        clipboard.primary.text = text
-
   _on_button_release: (view, event) =>
     @drag_press_type = nil
 
-    if event.button == 3
-        if @selection.empty
-            print(@view\position_from_coordinates(event.x, event.y))
-            print(@view\position_from_coordinates(event.x, event.y, {fuzzy: true}))
+    if event.button == 3 or event.button == 2
+        text = nil
+        range = nil
+        click_position = @_pos_from_coordinates(event.x, event.y)
+        start_selection, end_selection = @selection\range!
+        if @selection.empty or click_position >= end_selection or click_position < start_selection
+            context = @buffer\context_at click_position
+            line = context.line
+            if line.end_pos == click_position
+                text = line.text.stripped
+                range = line
+            else
+                start_pos, end_pos = context\_get_boundaries r'([\\.\\-_\\\\/:\\^#]*[^\\s\\p{P}]+)+'
+                range = Chunk @buffer, start_pos, end_pos-1
+                text = range.text
         else
-            print(@selection.text)
+            text = @selection.text.stripped
+            range = @selection
+
+        if event.button == 3
+            signal.emit 'plumb-text', editor: @, :text, :range
+        elseif event.button == 2
+            signal.emit 'execute-text', editor: @, :text, :range
 
   _on_motion_event: (view, event) =>
     if @drag_press_type == Gdk.GDK_2BUTTON_PRESS or @drag_press_type == Gdk.GDK_3BUTTON_PRESS
@@ -1235,5 +1243,19 @@ signal.register 'cursor-changed',
   parameters:
     editor: 'The editor for which the text was inserted'
     cursor: 'The cursor object'
+
+signal.register 'plumb-text',
+  description: 'Signaled when text is right-clicked and is meant to be opened or plumbed'
+  parameters:
+    editor: 'The editor in which the signal originated'
+    range: 'The range which was clicked'
+    text: 'The stripped text'
+
+signal.register 'execute-text',
+  description: 'Signaled when text is middle-clicked and is meant to be executed'
+  parameters:
+    editor: 'The editor in which the signal originated'
+    range: 'The range which was clicked'
+    text: 'The stripped text'
 
 return Editor

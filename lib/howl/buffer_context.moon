@@ -59,14 +59,15 @@ class Context extends PropertyObject
   }
 
   _get_word_boundaries: =>
-    word_pattern = @buffer\mode_at(@pos).word_pattern
+    return @_get_boundaries  @buffer\mode_at(@pos).word_pattern
 
+  _get_boundaries: (pattern) =>
     line_text = @line.text
     line_start_pos = @line.start_pos
     line_pos = @pos - line_start_pos + 1
     start_pos = 1
     while start_pos <= line_pos
-      start_pos, end_pos = line_text\ufind word_pattern, start_pos
+      start_pos, end_pos = line_text\ufind pattern, start_pos
       break unless start_pos
 
       if start_pos <= line_pos and end_pos >= line_pos - 1

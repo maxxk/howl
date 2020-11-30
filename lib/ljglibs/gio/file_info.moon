@@ -26,6 +26,7 @@ core.define 'GFileInfo', {
     is_backup: => C.g_file_info_get_is_backup(@) != 0
     is_symlink: => C.g_file_info_get_is_symlink(@) != 0
     filetype: => C.g_file_info_get_file_type @
+    content_type: => ffi_string C.g_file_info_get_content_type @
     size: => tonumber C.g_file_info_get_size @
     etag: => ffi_string C.g_file_info_get_etag @
  }

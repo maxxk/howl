@@ -776,9 +776,11 @@ View = {
     true
 
   _on_button_press: (_, event) =>
-    @area\grab_focus! unless @area.has_focus
-
     event = ffi_cast('GdkEventButton *', event)
+
+    if event.button == 1 and not @area.has_focus
+        @area\grab_focus!
+
 
     return false if event.x <= @gutter_width
     return true if notify @, 'on_button_press', event

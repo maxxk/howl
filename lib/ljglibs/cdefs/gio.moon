@@ -132,6 +132,7 @@ ffi.cdef [[
   gboolean            g_file_info_get_is_hidden           (GFileInfo *info);
   gboolean            g_file_info_get_is_backup           (GFileInfo *info);
   gboolean            g_file_info_get_is_symlink          (GFileInfo *info);
+  const char *        g_file_info_get_content_type    (GFileInfo *info);
   goffset             g_file_info_get_size                (GFileInfo *info);
   const char *        g_file_info_get_etag                (GFileInfo *info);
 

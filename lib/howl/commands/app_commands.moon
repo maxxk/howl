@@ -797,3 +797,4 @@ command.register
   input: search_input_list
   handler: (loc) ->
 
+return { :get_buffer_dir, :get_project_root, :launch_cmd }

@@ -6,6 +6,7 @@ import Buffer, Settings, mode, breadcrumbs, bundle, bindings, keymap, signal, in
 import File, Process from howl.io
 import Project from howl
 import PropertyObject from howl.util.moon
+acme = require 'howl.acme'
 Gtk = require 'ljglibs.gtk'
 callbacks = require 'ljglibs.callbacks'
 {:get_monotonic_time} = require 'ljglibs.glib'
@@ -129,6 +130,13 @@ class Application extends PropertyObject
                 title = title .. ' (' .. buffer.file.short_path .. ')'
         @window\set_title('Howl: ' .. title)
 
+    signal.connect 'plumb-text', (arg) ->
+        arg.application = @
+        acme.plumb(arg)
+
+    signal.connect 'execute-text', (arg) ->
+        arg.application = @
+        acme.execute(arg)
     super!
 
   @property idle: get: =>
